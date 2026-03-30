@@ -3,6 +3,8 @@ import express, { request } from "express";
 
 const app = express();
 
+app.use(express.json())
+
 /* Traz a informação de todos os times */
 
 app.get("/", (requisicao, resposta) => {
@@ -20,13 +22,21 @@ app.get("/:sigla", (request, response) => {
   if (!time) {
     response
       .status(404)
-      .send(
-        "Não foi encontrado o time com a sigla informada!!!",
-      );
+      .send("Não foi encontrado o time com a sigla informada!!!");
     return;
   }
 
   response.status(200).send(time);
+});
+
+app.put("/:sigla", (req, res) => {
+  const siglaPesquisada = req.params.sigla.toUpperCase();
+  const time = tabelaBrasil.find((t) => t.sigla === siglaPesquisada);
+  const campos = Object.keys(req.body)
+  for(let campo of campos){
+    time[campo] = req.body[campo]
+  }
+  res.status(200).send(time)
 });
 
 /* Cria um servidor com a porta 300 e exibirá uma mensagem 'Servidor rodando com sucesso!!!' */
