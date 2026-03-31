@@ -3,7 +3,7 @@ import express, { request } from "express";
 
 const app = express();
 
-app.use(express.json())
+app.use(express.json());
 
 /* Traz a informação de todos os times */
 
@@ -32,11 +32,26 @@ app.get("/:sigla", (request, response) => {
 app.put("/:sigla", (req, res) => {
   const siglaPesquisada = req.params.sigla.toUpperCase();
   const time = tabelaBrasil.find((t) => t.sigla === siglaPesquisada);
-  const campos = Object.keys(req.body)
-  for(let campo of campos){
-    time[campo] = req.body[campo]
+  const campos = Object.keys(req.body);
+  for (let campo of campos) {
+    time[campo] = req.body[campo];
   }
-  res.status(200).send(time)
+  res.status(200).send(time);
+});
+
+app.post("/", (req, res) => {
+  const novoTime = req.body;
+  tabelaBrasil.push(novoTime);
+  res.status(200).send(novoTime);
+});
+
+app.delete("/:sigla", (req, res) => {
+  const siglaInformada = req.params.sigla.toUpperCase;
+  const timeIndice = tabelaBrasil.findIndex(
+    (tm) => tm.sigla === siglaInformada,
+  );
+  const timeRemovido = tabelaBrasil.splice(timeIndice, 1);
+  res.status(200).send(timeRemovido);
 });
 
 /* Cria um servidor com a porta 300 e exibirá uma mensagem 'Servidor rodando com sucesso!!!' */
