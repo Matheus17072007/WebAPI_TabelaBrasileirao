@@ -1,5 +1,6 @@
 import tabelaBrasil from "./tabela.js";
 import express, { request } from "express";
+import { modeloTimeNovo, modeloUpdateTime } from "./validacao.js";
 
 const app = express();
 
@@ -32,6 +33,16 @@ app.get("/:sigla", (request, response) => {
 app.put("/:sigla", (req, res) => {
   const siglaPesquisada = req.params.sigla.toUpperCase();
   const time = tabelaBrasil.find((t) => t.sigla === siglaPesquisada);
+  if (!time) {
+    res.status(404).send("Não foi encontrado o time com a sigla informada!!!");
+    return;
+  }
+  const { error } = modeloUpdateTime.validate(req.body);
+  if (error) {
+    res.status(400).send(error);
+    return;
+  }
+  console.log(resultValidate);
   const campos = Object.keys(req.body);
   for (let campo of campos) {
     time[campo] = req.body[campo];
@@ -41,8 +52,13 @@ app.put("/:sigla", (req, res) => {
 
 app.post("/", (req, res) => {
   const novoTime = req.body;
+  const { error } = modeloTimeNovo.validate(novoTime);
+  if (error) {
+    res.status(400).send(error);
+    return;
+  }
   tabelaBrasil.push(novoTime);
-  res.status(200).send(novoTime);
+  res.status(201).send(novoTime);
 });
 
 app.delete("/:sigla", (req, res) => {
@@ -50,6 +66,10 @@ app.delete("/:sigla", (req, res) => {
   const timeIndice = tabelaBrasil.findIndex(
     (tm) => tm.sigla === siglaInformada,
   );
+  if (timeIndice === -1) {
+    res.status(404).send("O time não foi encontrado na tabela do brasileirão");
+    return;
+  }
   const timeRemovido = tabelaBrasil.splice(timeIndice, 1);
   res.status(200).send(timeRemovido);
 });
